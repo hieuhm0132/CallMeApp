@@ -172,6 +172,7 @@ const App = () => {
           if (remoteMessage.data) {
             // console.log("RTCPropsReceiver: ", remoteMessage.data)
             const callUUID = uuid.v4()
+            console.log('1', callUUID)
             setCallUUID(callUUID)
             RNCallKeep.displayIncomingCall(callUUID, "0977052703", 'Hieu Hoang', 'number', true);
 
@@ -180,6 +181,7 @@ const App = () => {
             setRtcProps({ uid: uid, appId: appId, channel: channel, token: rtctoken, callerFCMToken: callerFCMToken });
           }
         } else if (remoteMessage.notification.title === 'Call Rejected!') {
+          console.log('2', callUUID)
           RNCallKeep.rejectCall(callUUID);
           if (remoteMessage.notification.title) {
             showMessage({

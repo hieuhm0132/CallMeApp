@@ -26,12 +26,15 @@ DerivedData
 build/
 .idea
 .gradle
+.hprof
 local.properties
 *.iml
 
 # node.js
 #
 node_modules/
+android/
+ios/
 npm-debug.log
 yarn-error.log
 
