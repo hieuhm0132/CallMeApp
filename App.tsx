@@ -46,6 +46,7 @@ const App = () => {
   const [onlineUsers, setOnlineUsers] = useState<itemProps[]>([]);
 
   const [receiverFCMToken, setReceiverFCMToken] = useState('');
+  const [callUUID, setCallUUID] = useState('');
 
   const [videoCall, setVideoCall] = useState(false);
   const [rtcProps, setRtcProps] = useState({
@@ -165,18 +166,21 @@ const App = () => {
     });
 
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log("1")
+      
       if (remoteMessage.notification) {
         if (remoteMessage.notification.title === 'A Call Incoming!') {
           if (remoteMessage.data) {
             // console.log("RTCPropsReceiver: ", remoteMessage.data)
-            RNCallKeep.displayIncomingCall(uuid.v4(), "0977052703", 'Hieu Hoang', 'number', true);
+            const callUUID = uuid.v4()
+            setCallUUID(callUUID)
+            RNCallKeep.displayIncomingCall(callUUID, "0977052703", 'Hieu Hoang', 'number', true);
 
             const rtcPropsReceiver = remoteMessage.data;
             const { uid, appId, channel, rtctoken, callerFCMToken } = JSON.parse(rtcPropsReceiver.json);
             setRtcProps({ uid: uid, appId: appId, channel: channel, token: rtctoken, callerFCMToken: callerFCMToken });
           }
         } else if (remoteMessage.notification.title === 'Call Rejected!') {
+          RNCallKeep.rejectCall(callUUID);
           if (remoteMessage.notification.title) {
             showMessage({
               message: remoteMessage.notification.title,
@@ -233,9 +237,8 @@ const App = () => {
     if (videoCall) {
       console.log("End call after answerCall");
     } else {
-      console.log("User reject Call");
+      console.log("User reject Call: ");
       if (user) {
-        console.log('mmmm')
         fetch('https://hieuhm-app-call-me.herokuapp.com/rejectCall', {
           method: 'POST',
           headers: {
@@ -245,7 +248,7 @@ const App = () => {
             message: "User " + user.email + " rejected your call",
             token: rtcProps.callerFCMToken,
           })
-        })
+        }).then(() => console.log('Send Reject Call!'));
       }
     }
   };
@@ -368,7 +371,7 @@ const App = () => {
               uid: user.uid,
               isPublisher: true,
               message: "User " + user.email + " is calling you now",
-              receiverFCMtToken: item.token,
+              receiverFCMToken: item.token,
               callerFCMToken: callerFCMToken
             })
           })
